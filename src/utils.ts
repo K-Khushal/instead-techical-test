@@ -146,6 +146,12 @@ export function setJSONPath(
 			}
 			current = arr[index] as Record<string, unknown>;
 		} else {
+			if (typeof current !== "object" || current === null) {
+				throw new Error(
+					`Cannot set property on non-object value at segment: ${segment}`,
+				);
+			}
+
 			if (!current[segment]) {
 				current[segment] = {};
 			}
@@ -390,17 +396,34 @@ export function validateField(
 	field: FieldAnnotation,
 	value: unknown,
 	_allData?: Record<string, unknown>,
+	blueprint?: FormBlueprint,
 ): ValidationError[] {
 	const errors: ValidationError[] = [];
+
+	if (field.required) {
+		const isEmpty = value === null || value === undefined || value === "";
+		if (isEmpty) {
+			errors.push({
+				fieldId: field.id,
+				lineNumber: field.lineNumber,
+				message: `${field.label || field.id} is required`,
+				severity: ValidationSeverity.ERROR,
+				rule: ValidationType.REQUIRED,
+				actualValue: value,
+			});
+		}
+	}
 
 	if (!field.validations) {
 		return errors;
 	}
 
-	for (const rule of field.validations) {
-		const error = validateRule(field, value, rule, _allData);
-		if (error) {
-			errors.push(error);
+	if (field.validations) {
+		for (const rule of field.validations) {
+			const error = validateRule(field, value, rule, _allData, blueprint);
+			if (error) {
+				errors.push(error);
+			}
 		}
 	}
 
@@ -415,6 +438,7 @@ function validateRule(
 	value: unknown,
 	rule: ValidationRule,
 	_allData?: Record<string, unknown>,
+	blueprint?: FormBlueprint,
 ): ValidationError | null {
 	const severity = rule.severity ?? ValidationSeverity.ERROR;
 
@@ -506,6 +530,78 @@ function validateRule(
 				}
 			}
 			break;
+
+		case ValidationType.LUHN:
+			if (typeof value === "string") {
+				// Strip non-digits
+				const digits = value.replace(/\D/g, "");
+				let sum = 0;
+				let shouldDouble = false;
+				// Loop backwards
+				for (let i = digits.length - 1; i >= 0; i--) {
+					let digit = parseInt(digits.charAt(i), 10);
+
+					if (shouldDouble) {
+						digit *= 2;
+						if (digit > 9) digit -= 9;
+					}
+
+					sum += digit;
+					shouldDouble = !shouldDouble;
+				}
+				if (sum % 10 !== 0) {
+					return {
+						fieldId: field.id,
+						lineNumber: field.lineNumber,
+						message: rule.message,
+						severity,
+						rule: rule.type,
+						actualValue: value,
+					};
+				}
+			}
+			break;
+
+		case ValidationType.CROSS_FIELD:
+			if (rule.compareFields && rule.compareOperator && blueprint && _allData) {
+				for (const otherFieldId of rule.compareFields) {
+					const otherField = findFieldById(blueprint, otherFieldId);
+					if (!otherField) continue;
+					const otherValue = resolveJSONPath(
+						otherField.dataBinding.path,
+						_allData,
+					);
+
+					const matches = compareValues(
+						value,
+						otherValue,
+						rule.compareOperator,
+					);
+					if (!matches) {
+						return {
+							fieldId: field.id,
+							lineNumber: field.lineNumber,
+							message: rule.message,
+							severity,
+							rule: rule.type,
+							actualValue: value,
+							expectedValue: `${rule.compareOperator} ${otherField.label}`,
+						};
+					}
+				}
+			} else if (rule.compareFields && (!blueprint || !_allData)) {
+				// Cannot validate cross-field without context, maybe return warning?
+				// For now, fail silently or return warning.
+				// Returning warning to help debugging
+				return {
+					fieldId: field.id,
+					lineNumber: field.lineNumber,
+					message: "Context missing for cross-field validation",
+					severity: ValidationSeverity.INFO,
+					rule: rule.type,
+				};
+			}
+			break;
 	}
 
 	return null;
@@ -528,22 +624,30 @@ export function validateForm(
 	for (const page of blueprint.pages) {
 		for (const field of page.fields) {
 			// Skip validation for fields hidden by conditional logic
+			let effectiveField = field;
+
 			if (field.conditionalLogic) {
-				const shouldShow = evaluateConditionalLogic(
+				const isSatisfied = evaluateConditionalLogic(
 					field.conditionalLogic,
 					data,
 					blueprint,
 				);
-				if (
-					!shouldShow &&
-					field.conditionalLogic.action === ConditionalAction.SHOW
-				) {
-					continue;
+				const action = field.conditionalLogic.action;
+
+				// Handle visibility actions
+				if (action === ConditionalAction.SHOW && !isSatisfied) continue;
+				if (action === ConditionalAction.HIDE && isSatisfied) continue;
+
+				// Handle requirement actions
+				if (action === ConditionalAction.REQUIRE && isSatisfied) {
+					effectiveField = { ...field, required: true };
+				} else if (action === ConditionalAction.OPTIONAL && isSatisfied) {
+					effectiveField = { ...field, required: false };
 				}
 			}
 
 			const value = resolveJSONPath(field.dataBinding.path, data);
-			const fieldErrors = validateField(field, value, data);
+			const fieldErrors = validateField(effectiveField, value, data, blueprint);
 
 			for (const error of fieldErrors) {
 				if (error.severity === ValidationSeverity.ERROR) {
@@ -598,30 +702,14 @@ export function evaluateConditionalLogic(
 }
 
 /**
- * Evaluates a single condition.
+ * Compares two values using the specified operator.
  */
-function evaluateCondition(
-	condition: Condition,
-	data: Record<string, unknown>,
-	blueprint: FormBlueprint,
+export function compareValues(
+	sourceValue: unknown,
+	targetValue: unknown,
+	operator: ComparisonOperator,
 ): boolean {
-	// Resolve the source value (could be JSONPath or field ID)
-	let sourceValue: unknown;
-
-	if (condition.source.startsWith("$")) {
-		// JSONPath
-		sourceValue = resolveJSONPath(condition.source, data);
-	} else {
-		// Field ID - resolve through data binding
-		const field = findFieldById(blueprint, condition.source);
-		if (field) {
-			sourceValue = resolveJSONPath(field.dataBinding.path, data);
-		}
-	}
-
-	const targetValue = condition.value;
-
-	switch (condition.operator) {
+	switch (operator) {
 		case ComparisonOperator.EQUALS:
 			return sourceValue === targetValue;
 		case ComparisonOperator.NOT_EQUALS:
@@ -655,13 +743,38 @@ function evaluateCondition(
 			}
 			return true;
 		case ComparisonOperator.MATCHES_PATTERN:
-			if (typeof sourceValue === "string" && typeof targetValue === "string") {
-				return new RegExp(targetValue).test(sourceValue);
+			if (targetValue !== null && targetValue !== undefined) {
+				return new RegExp(String(targetValue)).test(String(sourceValue));
 			}
 			return false;
 		default:
 			return false;
 	}
+}
+
+/**
+ * Evaluates a single condition.
+ */
+function evaluateCondition(
+	condition: Condition,
+	data: Record<string, unknown>,
+	blueprint: FormBlueprint,
+): boolean {
+	// Resolve the source value (could be JSONPath or field ID)
+	let sourceValue: unknown;
+
+	if (condition.source.startsWith("$")) {
+		// JSONPath
+		sourceValue = resolveJSONPath(condition.source, data);
+	} else {
+		// Field ID - resolve through data binding
+		const field = findFieldById(blueprint, condition.source);
+		if (field) {
+			sourceValue = resolveJSONPath(field.dataBinding.path, data);
+		}
+	}
+
+	return compareValues(sourceValue, condition.value, condition.operator);
 }
 
 // ============================================================================

@@ -56,20 +56,6 @@ export function isFieldDataType(value: unknown): value is FieldDataType {
 }
 
 /**
- * JSON-serializable version of a FormBlueprint.
- * Ensures the blueprint can be safely serialized to JSON.
- */
-import type { FormBlueprint } from "./interfaces";
-
-export type SerializableFormBlueprint = {
-	[K in keyof FormBlueprint]: FormBlueprint[K] extends (
-		...args: unknown[]
-	) => unknown
-		? never
-		: FormBlueprint[K];
-};
-
-/**
  * Type for JSONPath expressions.
  * Provides a nominal type for better documentation and type safety.
  */

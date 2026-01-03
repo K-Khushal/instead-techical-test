@@ -62,7 +62,9 @@ export function isFieldDataType(value: unknown): value is FieldDataType {
 import type { FormBlueprint } from "./interfaces";
 
 export type SerializableFormBlueprint = {
-	[K in keyof FormBlueprint]: FormBlueprint[K] extends Function
+	[K in keyof FormBlueprint]: FormBlueprint[K] extends (
+		...args: unknown[]
+	) => unknown
 		? never
 		: FormBlueprint[K];
 };

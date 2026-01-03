@@ -124,9 +124,9 @@ The system must serve as a **universal contract** between:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│                         TAX FORM ANNOTATION SYSTEM                   │
+│                         TAX FORM ANNOTATION SYSTEM                  │
 ├─────────────────────────────────────────────────────────────────────┤
-│                                                                      │
+│                                                                     │
 │  ┌──────────────┐     ┌──────────────┐     ┌──────────────────────┐ │
 │  │   TAXPAYER   │     │     FORM     │     │     RENDERING        │ │
 │  │    DATA      │────▶│   BLUEPRINT  │────▶│       ENGINE         │ │
@@ -138,12 +138,12 @@ The system must serve as a **universal contract** between:
 │         │                    │              │   FILLED FORM    │    │
 │         │                    │              │   (PDF/Image)    │    │
 │         ▼                    ▼              └──────────────────┘    │
-│  ┌─────────────────────────────────────────────────────────────┐   │
-│  │                    JSON PATH RESOLVER                        │   │
-│  │   $.taxpayer.firstName    →    "JOHN"                       │   │
-│  │   $.income.w2Forms[*].wages   →    [52000, 48000]          │   │
-│  └─────────────────────────────────────────────────────────────┘   │
-│                                                                      │
+│  ┌─────────────────────────────────────────────────────────────┐    │
+│  │                    JSON PATH RESOLVER                       │    │
+│  │   $.taxpayer.firstName    →    "JOHN"                       │    │
+│  │   $.income.w2Forms[*].wages   →    [52000, 48000]           │    │
+│  └─────────────────────────────────────────────────────────────┘    │
+│                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -775,11 +775,11 @@ function formatCurrency(
 
 | Feature | Description | Status |
 |---------|-------------|--------|
-| **Visual Editor** | GUI tool for creating/editing blueprints | Planned |
-| **Automated Positioning** | OCR-based field detection from PDFs | Research |
+| **Visual Editor** | GUI tool for creating/editing blueprints | Future |
+| **Automated Positioning** | OCR-based field detection from PDFs | Future |
 | **Localization** | Support for non-English forms | Future |
 | **Digital Signatures** | Embedded signature fields | Future |
-| **Barcode Support** | 2D barcodes for e-filing | Planned |
+| **Barcode Support** | 2D barcodes for e-filing | Future |
 | **Accessibility** | Screen reader annotations | Future |
 
 ### 6.2 Extension Points
@@ -789,12 +789,6 @@ The schema supports custom extensions via:
 1. **`meta.customProperties`** on fields
 2. **Custom transformers** in the `transformers` array
 3. **Custom validation types** with `CUSTOM` validator
-
-### 6.3 Versioning Roadmap
-
-- **v1.1.0**: Add barcode field type
-- **v1.2.0**: Add signature positioning
-- **v2.0.0**: Restructure repeatable fields (breaking)
 
 ---
 

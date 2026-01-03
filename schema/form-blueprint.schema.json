@@ -1,0 +1,626 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "https://example.com/tax-form-blueprint.schema.json",
+	"title": "Tax Form Annotation Blueprint",
+	"description": "Schema for defining field annotations on U.S. tax forms",
+	"type": "object",
+	"required": [
+		"id",
+		"version",
+		"schemaVersion",
+		"metadata",
+		"coordinateSystem",
+		"pages"
+	],
+	"properties": {
+		"id": {
+			"type": "string",
+			"description": "Unique identifier for the form blueprint",
+			"pattern": "^[a-z0-9-]+$",
+			"examples": ["irs-form-1040-2025"]
+		},
+		"version": {
+			"type": "string",
+			"description": "Semantic version of this blueprint",
+			"pattern": "^\\d+\\.\\d+\\.\\d+$",
+			"examples": ["1.0.0", "2.1.3"]
+		},
+		"schemaVersion": {
+			"type": "string",
+			"description": "Version of the annotation schema this conforms to",
+			"pattern": "^\\d+\\.\\d+\\.\\d+$"
+		},
+		"metadata": {
+			"$ref": "#/definitions/FormMetadata"
+		},
+		"coordinateSystem": {
+			"$ref": "#/definitions/CoordinateSystemDefinition"
+		},
+		"pages": {
+			"type": "array",
+			"description": "Page definitions for the form",
+			"items": {
+				"$ref": "#/definitions/PageDefinition"
+			},
+			"minItems": 1
+		},
+		"fieldGroups": {
+			"type": "array",
+			"description": "Logical groupings of related fields",
+			"items": {
+				"$ref": "#/definitions/FieldGroup"
+			}
+		},
+		"globalStyles": {
+			"$ref": "#/definitions/FormattingRules",
+			"description": "Default styles applied to all fields"
+		},
+		"stylePresets": {
+			"type": "object",
+			"description": "Named style presets that can be referenced by fields",
+			"additionalProperties": {
+				"$ref": "#/definitions/FormattingRules"
+			}
+		},
+		"transformers": {
+			"type": "array",
+			"description": "Custom data transformers",
+			"items": {
+				"$ref": "#/definitions/TransformerDefinition"
+			}
+		}
+	},
+	"definitions": {
+		"FormMetadata": {
+			"type": "object",
+			"required": [
+				"formName",
+				"formNumber",
+				"taxYear",
+				"issuer",
+				"revisionDate",
+				"status",
+				"createdAt",
+				"updatedAt"
+			],
+			"properties": {
+				"formName": {
+					"type": "string",
+					"description": "Official form name"
+				},
+				"formNumber": {
+					"type": "string",
+					"description": "Form number"
+				},
+				"taxYear": {
+					"type": "integer",
+					"description": "Tax year this form applies to",
+					"minimum": 1900,
+					"maximum": 2100
+				},
+				"issuer": {
+					"type": "string",
+					"description": "Issuing authority"
+				},
+				"revisionDate": {
+					"type": "string",
+					"description": "Official revision date"
+				},
+				"ombNumber": {
+					"type": "string",
+					"description": "OMB control number"
+				},
+				"catalogNumber": {
+					"type": "string",
+					"description": "Catalog number"
+				},
+				"status": {
+					"type": "string",
+					"enum": ["draft", "published", "deprecated", "archived"]
+				},
+				"createdAt": {
+					"type": "string",
+					"format": "date-time"
+				},
+				"updatedAt": {
+					"type": "string",
+					"format": "date-time"
+				},
+				"author": {
+					"type": "string"
+				},
+				"notes": {
+					"type": "string"
+				},
+				"tags": {
+					"type": "array",
+					"items": { "type": "string" }
+				},
+				"relatedForms": {
+					"type": "array",
+					"items": { "type": "string" }
+				},
+				"instructionsUrl": {
+					"type": "string",
+					"format": "uri"
+				}
+			}
+		},
+		"CoordinateSystemDefinition": {
+			"type": "object",
+			"required": ["unit", "origin"],
+			"properties": {
+				"unit": {
+					"type": "string",
+					"enum": ["points", "pixels", "percentage", "inches", "millimeters"],
+					"description": "Unit of measurement"
+				},
+				"origin": {
+					"type": "string",
+					"enum": ["top-left", "bottom-left"],
+					"description": "Coordinate origin location"
+				},
+				"dpi": {
+					"type": "integer",
+					"description": "Dots per inch for pixel coordinates",
+					"default": 72
+				},
+				"referenceWidth": {
+					"type": "number",
+					"description": "Reference page width"
+				},
+				"referenceHeight": {
+					"type": "number",
+					"description": "Reference page height"
+				}
+			}
+		},
+		"PageDefinition": {
+			"type": "object",
+			"required": ["pageNumber", "dimensions", "orientation", "fields"],
+			"properties": {
+				"pageNumber": {
+					"type": "integer",
+					"minimum": 1,
+					"description": "Page number (1-indexed)"
+				},
+				"pageId": {
+					"type": "string",
+					"description": "Optional page identifier"
+				},
+				"dimensions": {
+					"$ref": "#/definitions/PageDimensions"
+				},
+				"orientation": {
+					"type": "string",
+					"enum": ["portrait", "landscape"]
+				},
+				"backgroundSource": {
+					"type": "string",
+					"description": "Path to background form image/PDF"
+				},
+				"margins": {
+					"$ref": "#/definitions/PageMargins"
+				},
+				"fields": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/FieldAnnotation"
+					}
+				}
+			}
+		},
+		"PageDimensions": {
+			"type": "object",
+			"required": ["width", "height"],
+			"properties": {
+				"width": {
+					"type": "number",
+					"minimum": 0
+				},
+				"height": {
+					"type": "number",
+					"minimum": 0
+				},
+				"paperSize": {
+					"type": "string",
+					"enum": ["letter", "legal", "a4", "custom"]
+				}
+			}
+		},
+		"PageMargins": {
+			"type": "object",
+			"properties": {
+				"top": { "type": "number" },
+				"right": { "type": "number" },
+				"bottom": { "type": "number" },
+				"left": { "type": "number" }
+			}
+		},
+		"FieldAnnotation": {
+			"type": "object",
+			"required": ["id", "label", "dataType", "positioning", "dataBinding"],
+			"properties": {
+				"id": {
+					"type": "string",
+					"description": "Unique field identifier"
+				},
+				"label": {
+					"type": "string",
+					"description": "Human-readable label"
+				},
+				"lineNumber": {
+					"type": "string",
+					"description": "IRS line number reference"
+				},
+				"dataType": {
+					"type": "string",
+					"enum": [
+						"string",
+						"currency",
+						"number",
+						"checkbox",
+						"date",
+						"ssn",
+						"ein",
+						"phone",
+						"percentage"
+					]
+				},
+				"positioning": {
+					"$ref": "#/definitions/Positioning"
+				},
+				"dataBinding": {
+					"$ref": "#/definitions/DataBinding"
+				},
+				"formatting": {
+					"$ref": "#/definitions/FormattingRules"
+				},
+				"validations": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/ValidationRule"
+					}
+				},
+				"conditionalLogic": {
+					"$ref": "#/definitions/ConditionalLogic"
+				},
+				"stylePreset": {
+					"type": "string",
+					"description": "Reference to a style preset"
+				},
+				"groupId": {
+					"type": "string"
+				},
+				"required": {
+					"type": "boolean"
+				},
+				"readOnly": {
+					"type": "boolean"
+				},
+				"defaultValue": {
+					"oneOf": [
+						{ "type": "string" },
+						{ "type": "number" },
+						{ "type": "boolean" }
+					]
+				},
+				"helpText": {
+					"type": "string"
+				},
+				"zIndex": {
+					"type": "integer"
+				},
+				"meta": {
+					"$ref": "#/definitions/FieldMetadata"
+				}
+			}
+		},
+		"Positioning": {
+			"type": "object",
+			"required": ["x", "y", "width", "height"],
+			"properties": {
+				"x": {
+					"type": "number",
+					"description": "X coordinate"
+				},
+				"y": {
+					"type": "number",
+					"description": "Y coordinate"
+				},
+				"width": {
+					"type": "number",
+					"minimum": 0
+				},
+				"height": {
+					"type": "number",
+					"minimum": 0
+				},
+				"rotation": {
+					"type": "number",
+					"description": "Rotation in degrees"
+				},
+				"padding": {
+					"type": "object",
+					"properties": {
+						"top": { "type": "number" },
+						"right": { "type": "number" },
+						"bottom": { "type": "number" },
+						"left": { "type": "number" }
+					}
+				}
+			}
+		},
+		"DataBinding": {
+			"type": "object",
+			"required": ["path"],
+			"properties": {
+				"path": {
+					"type": "string",
+					"description": "JSONPath expression",
+					"pattern": "^\\$"
+				},
+				"transform": {
+					"type": "string"
+				},
+				"transformParams": {
+					"type": "object"
+				},
+				"fallback": {
+					"oneOf": [
+						{ "type": "string" },
+						{ "type": "number" },
+						{ "type": "boolean" }
+					]
+				},
+				"checkedValue": {
+					"oneOf": [
+						{ "type": "string" },
+						{ "type": "number" },
+						{ "type": "boolean" }
+					]
+				},
+				"repeatSource": {
+					"type": "string"
+				},
+				"expression": {
+					"$ref": "#/definitions/CalculationExpression"
+				}
+			}
+		},
+		"CalculationExpression": {
+			"type": "object",
+			"required": ["type"],
+			"properties": {
+				"type": {
+					"type": "string",
+					"enum": ["sum", "subtract", "multiply", "divide", "formula", "lookup"]
+				},
+				"operands": {
+					"type": "array",
+					"items": {
+						"oneOf": [{ "type": "string" }, { "type": "number" }]
+					}
+				},
+				"formula": {
+					"type": "string"
+				},
+				"lookupTable": {
+					"type": "string"
+				},
+				"lookupKey": {
+					"type": "string"
+				}
+			}
+		},
+		"FormattingRules": {
+			"type": "object",
+			"properties": {
+				"fontFamily": { "type": "string" },
+				"fontSize": { "type": "number", "minimum": 1 },
+				"fontWeight": {
+					"type": "integer",
+					"enum": [100, 200, 300, 400, 500, 600, 700, 800, 900]
+				},
+				"fontStyle": {
+					"type": "string",
+					"enum": ["normal", "italic", "oblique"]
+				},
+				"textDecoration": {
+					"type": "string",
+					"enum": ["none", "underline", "strikethrough"]
+				},
+				"textColor": { "type": "string" },
+				"backgroundColor": { "type": "string" },
+				"horizontalAlign": {
+					"type": "string",
+					"enum": ["left", "center", "right", "justify"]
+				},
+				"verticalAlign": {
+					"type": "string",
+					"enum": ["top", "middle", "bottom", "baseline"]
+				},
+				"lineHeight": { "type": "number" },
+				"letterSpacing": { "type": "number" },
+				"textTransform": {
+					"type": "string",
+					"enum": ["uppercase", "lowercase", "capitalize", "none"]
+				},
+				"overflow": {
+					"type": "string",
+					"enum": ["truncate", "wrap", "scale_to_fit", "overflow", "error"]
+				},
+				"currencyFormat": {
+					"type": "string",
+					"enum": ["USD", "USD_NO_SYMBOL", "USD_WITH_CENTS", "USD_WHOLE"]
+				},
+				"decimalPlaces": { "type": "integer", "minimum": 0 },
+				"thousandsSeparator": { "type": "boolean" },
+				"dateFormat": { "type": "string" },
+				"checkboxStyle": {
+					"type": "string",
+					"enum": [
+						"checkmark",
+						"x_mark",
+						"filled_square",
+						"filled_circle",
+						"custom"
+					]
+				},
+				"checkboxCharacter": { "type": "string" },
+				"showSeparators": { "type": "boolean" },
+				"maskValue": { "type": "boolean" },
+				"minFontSize": { "type": "number" },
+				"maxLines": { "type": "integer" }
+			}
+		},
+		"ValidationRule": {
+			"type": "object",
+			"required": ["type", "message"],
+			"properties": {
+				"type": {
+					"type": "string",
+					"enum": [
+						"required",
+						"min_length",
+						"max_length",
+						"pattern",
+						"range",
+						"custom",
+						"cross_field",
+						"luhn"
+					]
+				},
+				"message": { "type": "string" },
+				"severity": { "type": "string", "enum": ["error", "warning", "info"] },
+				"length": { "type": "integer" },
+				"min": { "type": "number" },
+				"max": { "type": "number" },
+				"pattern": { "type": "string" },
+				"compareFields": { "type": "array", "items": { "type": "string" } },
+				"compareOperator": { "type": "string" },
+				"customValidator": { "type": "string" }
+			}
+		},
+		"ConditionalLogic": {
+			"type": "object",
+			"required": ["conditions", "operator", "action"],
+			"properties": {
+				"conditions": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/Condition"
+					}
+				},
+				"operator": {
+					"type": "string",
+					"enum": ["and", "or", "not", "xor"]
+				},
+				"action": {
+					"type": "string",
+					"enum": [
+						"show",
+						"hide",
+						"enable",
+						"disable",
+						"set_value",
+						"clear_value",
+						"require",
+						"optional",
+						"apply_style"
+					]
+				},
+				"setValue": {
+					"oneOf": [
+						{ "type": "string" },
+						{ "type": "number" },
+						{ "type": "boolean" }
+					]
+				},
+				"applyStyles": {
+					"$ref": "#/definitions/FormattingRules"
+				}
+			}
+		},
+		"Condition": {
+			"type": "object",
+			"required": ["source", "operator", "value"],
+			"properties": {
+				"source": {
+					"type": "string",
+					"description": "Field ID or JSONPath"
+				},
+				"operator": {
+					"type": "string",
+					"enum": [
+						"eq",
+						"neq",
+						"gt",
+						"gte",
+						"lt",
+						"lte",
+						"contains",
+						"not_contains",
+						"starts_with",
+						"ends_with",
+						"is_empty",
+						"is_not_empty",
+						"in",
+						"not_in",
+						"matches_pattern"
+					]
+				},
+				"value": {
+					"oneOf": [
+						{ "type": "string" },
+						{ "type": "number" },
+						{ "type": "boolean" },
+						{ "type": "array" }
+					]
+				}
+			}
+		},
+		"FieldGroup": {
+			"type": "object",
+			"required": ["id", "name", "type", "fieldIds"],
+			"properties": {
+				"id": { "type": "string" },
+				"name": { "type": "string" },
+				"type": {
+					"type": "string",
+					"enum": ["section", "repeatable", "table", "schedule", "line_item"]
+				},
+				"fieldIds": { "type": "array", "items": { "type": "string" } },
+				"maxInstances": { "type": "integer" },
+				"minInstances": { "type": "integer" },
+				"repeatSource": { "type": "string" },
+				"parentGroupId": { "type": "string" },
+				"order": { "type": "integer" }
+			}
+		},
+		"TransformerDefinition": {
+			"type": "object",
+			"required": ["id", "name", "type"],
+			"properties": {
+				"id": { "type": "string" },
+				"name": { "type": "string" },
+				"description": { "type": "string" },
+				"type": {
+					"type": "string",
+					"enum": ["format", "calculate", "lookup", "custom"]
+				},
+				"config": { "type": "object" }
+			}
+		},
+		"FieldMetadata": {
+			"type": "object",
+			"properties": {
+				"notes": { "type": "string" },
+				"lastModified": { "type": "string", "format": "date-time" },
+				"modifiedBy": { "type": "string" },
+				"irsReference": { "type": "string" },
+				"customProperties": { "type": "object" }
+			}
+		}
+	}
+}

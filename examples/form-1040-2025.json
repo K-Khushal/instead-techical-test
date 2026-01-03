@@ -1,0 +1,1931 @@
+{
+	"$schema": "../schema/form-blueprint.schema.json",
+	"id": "irs-form-1040-2025",
+	"version": "1.0.0",
+	"schemaVersion": "1.0.0",
+
+	"metadata": {
+		"formName": "U.S. Individual Income Tax Return",
+		"formNumber": "1040",
+		"taxYear": 2025,
+		"issuer": "IRS",
+		"revisionDate": "2025-09-05",
+		"ombNumber": "1545-0074",
+		"catalogNumber": "11320B",
+		"status": "published",
+		"createdAt": "2025-10-01T00:00:00Z",
+		"updatedAt": "2026-01-03T00:00:00Z",
+		"author": "Instead Product Team",
+		"notes": "Form 1040 for tax year 2025. Includes all standard fields for individual income tax returns.",
+		"tags": ["individual", "income-tax", "1040", "2025"],
+		"relatedForms": [
+			"Schedule 1",
+			"Schedule 2",
+			"Schedule 3",
+			"Schedule A",
+			"Schedule B",
+			"Schedule C",
+			"Schedule D"
+		],
+		"instructionsUrl": "https://www.irs.gov/instructions/i1040"
+	},
+
+	"coordinateSystem": {
+		"unit": "points",
+		"origin": "top-left",
+		"dpi": 72,
+		"referenceWidth": 612,
+		"referenceHeight": 792
+	},
+
+	"globalStyles": {
+		"fontFamily": "Courier",
+		"fontSize": 10,
+		"fontWeight": 400,
+		"fontStyle": "normal",
+		"textColor": "#000000",
+		"horizontalAlign": "left",
+		"verticalAlign": "middle",
+		"overflow": "scale_to_fit",
+		"textTransform": "uppercase",
+		"minFontSize": 6,
+		"typeDefaults": {
+			"currency": {
+				"horizontalAlign": "right",
+				"currencyFormat": "USD_NO_SYMBOL",
+				"thousandsSeparator": true,
+				"decimalPlaces": 0
+			},
+			"checkbox": {
+				"horizontalAlign": "center",
+				"verticalAlign": "middle",
+				"checkboxStyle": "x_mark",
+				"checkboxCharacter": "X"
+			},
+			"ssn": {
+				"fontFamily": "Courier",
+				"letterSpacing": 2,
+				"showSeparators": false
+			},
+			"date": {
+				"dateFormat": "MMDDYYYY"
+			}
+		}
+	},
+
+	"stylePresets": {
+		"lineTotal": {
+			"fontWeight": 700,
+			"fontSize": 11,
+			"horizontalAlign": "right"
+		},
+		"sectionHeader": {
+			"fontWeight": 700,
+			"fontSize": 10,
+			"textTransform": "uppercase"
+		},
+		"smallText": {
+			"fontSize": 8,
+			"overflow": "wrap",
+			"maxLines": 2
+		}
+	},
+
+	"transformers": [
+		{
+			"id": "ssn_format",
+			"name": "SSN Formatter",
+			"description": "Formats a 9-digit SSN into XXX-XX-XXXX format",
+			"type": "format",
+			"config": {
+				"pattern": "###-##-####",
+				"stripNonNumeric": true
+			}
+		},
+		{
+			"id": "sum_array",
+			"name": "Array Summer",
+			"description": "Sums all numeric values in an array",
+			"type": "calculate",
+			"config": {
+				"operation": "sum"
+			}
+		},
+		{
+			"id": "currency_cents",
+			"name": "Cents to Dollars",
+			"description": "Converts cents to dollars",
+			"type": "calculate",
+			"config": {
+				"operation": "divide",
+				"divisor": 100
+			}
+		}
+	],
+
+	"globalValidations": [
+		{
+			"type": "cross_field",
+			"message": "Filing status must be selected",
+			"severity": "error",
+			"compareFields": [
+				"filing_status_single",
+				"filing_status_mfj",
+				"filing_status_mfs",
+				"filing_status_hoh",
+				"filing_status_qss"
+			],
+			"compareOperator": "is_not_empty"
+		}
+	],
+
+	"fieldGroups": [
+		{
+			"id": "header",
+			"name": "Form Header",
+			"type": "section",
+			"fieldIds": [
+				"tax_year_begin",
+				"tax_year_end",
+				"deceased_taxpayer_date",
+				"deceased_spouse_date"
+			],
+			"order": 1
+		},
+		{
+			"id": "filing_status",
+			"name": "Filing Status",
+			"type": "section",
+			"fieldIds": [
+				"filing_status_single",
+				"filing_status_mfj",
+				"filing_status_mfs",
+				"filing_status_mfs_spouse_ssn",
+				"filing_status_mfs_spouse_name",
+				"filing_status_hoh",
+				"filing_status_qss",
+				"filing_status_hoh_qss_child_name",
+				"filing_status_nra_spouse"
+			],
+			"order": 2
+		},
+		{
+			"id": "taxpayer_info",
+			"name": "Taxpayer Information",
+			"type": "section",
+			"fieldIds": [
+				"taxpayer_first_name",
+				"taxpayer_last_name",
+				"taxpayer_ssn",
+				"spouse_first_name",
+				"spouse_last_name",
+				"spouse_ssn"
+			],
+			"order": 3
+		},
+		{
+			"id": "address",
+			"name": "Address Information",
+			"type": "section",
+			"fieldIds": [
+				"home_address",
+				"apt_no",
+				"city",
+				"state",
+				"zip_code",
+				"foreign_country",
+				"foreign_province",
+				"foreign_postal_code"
+			],
+			"order": 4
+		},
+		{
+			"id": "dependents",
+			"name": "Dependents",
+			"type": "repeatable",
+			"fieldIds": [],
+			"maxInstances": 4,
+			"minInstances": 0,
+			"repeatSource": "$.dependents",
+			"order": 5
+		},
+		{
+			"id": "income",
+			"name": "Income",
+			"type": "section",
+			"fieldIds": [
+				"line_1a_w2_wages",
+				"line_1b_household_wages",
+				"line_1c_tip_income",
+				"line_1d_medicaid_waiver",
+				"line_1e_dependent_care",
+				"line_1f_adoption_benefits",
+				"line_1g_form_8919_wages",
+				"line_1h_other_earned",
+				"line_1i_combat_pay",
+				"line_1z_total_1a_1h",
+				"line_2a_tax_exempt_interest",
+				"line_2b_taxable_interest",
+				"line_3a_qualified_dividends",
+				"line_3b_ordinary_dividends",
+				"line_4a_ira_distributions",
+				"line_4b_ira_taxable",
+				"line_5a_pensions",
+				"line_5b_pensions_taxable",
+				"line_6a_social_security",
+				"line_6b_social_security_taxable",
+				"line_7a_capital_gain",
+				"line_8_schedule_1",
+				"line_9_total_income",
+				"line_10_adjustments",
+				"line_11a_adjusted_gross_income"
+			],
+			"order": 6
+		}
+	],
+
+	"pages": [
+		{
+			"pageNumber": 1,
+			"pageId": "form-1040-page-1",
+			"dimensions": {
+				"width": 612,
+				"height": 792,
+				"paperSize": "letter"
+			},
+			"orientation": "portrait",
+			"backgroundSource": "assets/forms/1040-2025-page1.pdf",
+			"margins": {
+				"top": 36,
+				"right": 36,
+				"bottom": 36,
+				"left": 36
+			},
+			"fields": [
+				{
+					"id": "tax_year_begin",
+					"label": "Tax year beginning",
+					"dataType": "date",
+					"positioning": {
+						"x": 252,
+						"y": 36,
+						"width": 75,
+						"height": 12
+					},
+					"dataBinding": {
+						"path": "$.taxPeriod.beginDate",
+						"fallback": ""
+					},
+					"formatting": {
+						"dateFormat": "MMDDYYYY",
+						"fontSize": 8
+					},
+					"groupId": "header",
+					"required": false
+				},
+				{
+					"id": "tax_year_end",
+					"label": "Tax year ending",
+					"dataType": "date",
+					"positioning": {
+						"x": 345,
+						"y": 36,
+						"width": 75,
+						"height": 12
+					},
+					"dataBinding": {
+						"path": "$.taxPeriod.endDate",
+						"fallback": ""
+					},
+					"formatting": {
+						"dateFormat": "MMDDYYYY",
+						"fontSize": 8
+					},
+					"groupId": "header",
+					"required": false
+				},
+
+				{
+					"id": "combat_zone_checkbox",
+					"label": "Filed pursuant to section 301.9100-2 Combat zone",
+					"dataType": "checkbox",
+					"positioning": {
+						"x": 144,
+						"y": 48,
+						"width": 10,
+						"height": 10
+					},
+					"dataBinding": {
+						"path": "$.specialSituations.combatZone",
+						"checkedValue": true
+					},
+					"groupId": "header"
+				},
+
+				{
+					"id": "deceased_taxpayer_date",
+					"label": "Deceased taxpayer date",
+					"dataType": "date",
+					"positioning": {
+						"x": 426,
+						"y": 48,
+						"width": 72,
+						"height": 12
+					},
+					"dataBinding": {
+						"path": "$.taxpayer.deceasedDate"
+					},
+					"formatting": {
+						"dateFormat": "MM_DD_YYYY",
+						"fontSize": 8
+					},
+					"conditionalLogic": {
+						"conditions": [
+							{
+								"source": "$.taxpayer.isDeceased",
+								"operator": "eq",
+								"value": true
+							}
+						],
+						"operator": "and",
+						"action": "show"
+					},
+					"groupId": "header"
+				},
+
+				{
+					"id": "deceased_spouse_date",
+					"label": "Deceased spouse date",
+					"dataType": "date",
+					"positioning": {
+						"x": 534,
+						"y": 48,
+						"width": 72,
+						"height": 12
+					},
+					"dataBinding": {
+						"path": "$.spouse.deceasedDate"
+					},
+					"formatting": {
+						"dateFormat": "MM_DD_YYYY",
+						"fontSize": 8
+					},
+					"conditionalLogic": {
+						"conditions": [
+							{
+								"source": "$.spouse.isDeceased",
+								"operator": "eq",
+								"value": true
+							}
+						],
+						"operator": "and",
+						"action": "show"
+					},
+					"groupId": "header"
+				},
+
+				{
+					"id": "taxpayer_first_name",
+					"label": "Your first name and middle initial",
+					"dataType": "string",
+					"positioning": {
+						"x": 36,
+						"y": 84,
+						"width": 216,
+						"height": 18,
+						"padding": {
+							"left": 4,
+							"right": 4,
+							"top": 2,
+							"bottom": 2
+						}
+					},
+					"dataBinding": {
+						"path": "$.taxpayer.firstName"
+					},
+					"formatting": {
+						"textTransform": "uppercase",
+						"overflow": "truncate"
+					},
+					"validations": [
+						{
+							"type": "required",
+							"message": "First name is required",
+							"severity": "error"
+						},
+						{
+							"type": "max_length",
+							"message": "First name cannot exceed 35 characters",
+							"length": 35
+						},
+						{
+							"type": "pattern",
+							"message": "First name can only contain letters, spaces, hyphens, and apostrophes",
+							"pattern": "^[A-Za-z\\s\\-']+$"
+						}
+					],
+					"groupId": "taxpayer_info",
+					"required": true,
+					"meta": {
+						"irsReference": "Form 1040, Your first name and middle initial"
+					}
+				},
+
+				{
+					"id": "taxpayer_last_name",
+					"label": "Last name",
+					"dataType": "string",
+					"positioning": {
+						"x": 252,
+						"y": 84,
+						"width": 180,
+						"height": 18,
+						"padding": {
+							"left": 4,
+							"right": 4
+						}
+					},
+					"dataBinding": {
+						"path": "$.taxpayer.lastName"
+					},
+					"formatting": {
+						"textTransform": "uppercase"
+					},
+					"validations": [
+						{
+							"type": "required",
+							"message": "Last name is required",
+							"severity": "error"
+						},
+						{
+							"type": "max_length",
+							"message": "Last name cannot exceed 35 characters",
+							"length": 35
+						}
+					],
+					"groupId": "taxpayer_info",
+					"required": true
+				},
+
+				{
+					"id": "taxpayer_ssn",
+					"label": "Your social security number",
+					"lineNumber": "SSN",
+					"dataType": "ssn",
+					"positioning": {
+						"x": 468,
+						"y": 84,
+						"width": 108,
+						"height": 18,
+						"padding": {
+							"left": 4,
+							"right": 4
+						}
+					},
+					"dataBinding": {
+						"path": "$.taxpayer.ssn",
+						"transform": "ssn_format"
+					},
+					"formatting": {
+						"letterSpacing": 3,
+						"showSeparators": true,
+						"horizontalAlign": "center",
+						"fontFamily": "Courier"
+					},
+					"validations": [
+						{
+							"type": "required",
+							"message": "Social Security Number is required",
+							"severity": "error"
+						},
+						{
+							"type": "pattern",
+							"message": "SSN must be 9 digits",
+							"pattern": "^\\d{9}$"
+						},
+						{
+							"type": "luhn",
+							"message": "Invalid SSN format",
+							"severity": "warning"
+						}
+					],
+					"groupId": "taxpayer_info",
+					"required": true
+				},
+
+				{
+					"id": "spouse_first_name",
+					"label": "If joint return, spouse's first name and middle initial",
+					"dataType": "string",
+					"positioning": {
+						"x": 36,
+						"y": 102,
+						"width": 216,
+						"height": 18,
+						"padding": {
+							"left": 4,
+							"right": 4
+						}
+					},
+					"dataBinding": {
+						"path": "$.spouse.firstName"
+					},
+					"formatting": {
+						"textTransform": "uppercase"
+					},
+					"conditionalLogic": {
+						"conditions": [
+							{
+								"source": "$.filingStatus",
+								"operator": "in",
+								"value": [
+									"married_filing_jointly",
+									"qualifying_surviving_spouse"
+								]
+							}
+						],
+						"operator": "and",
+						"action": "require"
+					},
+					"groupId": "taxpayer_info"
+				},
+
+				{
+					"id": "spouse_last_name",
+					"label": "Spouse's last name",
+					"dataType": "string",
+					"positioning": {
+						"x": 252,
+						"y": 102,
+						"width": 180,
+						"height": 18,
+						"padding": {
+							"left": 4,
+							"right": 4
+						}
+					},
+					"dataBinding": {
+						"path": "$.spouse.lastName"
+					},
+					"formatting": {
+						"textTransform": "uppercase"
+					},
+					"conditionalLogic": {
+						"conditions": [
+							{
+								"source": "$.filingStatus",
+								"operator": "eq",
+								"value": "married_filing_jointly"
+							}
+						],
+						"operator": "and",
+						"action": "require"
+					},
+					"groupId": "taxpayer_info"
+				},
+
+				{
+					"id": "spouse_ssn",
+					"label": "Spouse's social security number",
+					"dataType": "ssn",
+					"positioning": {
+						"x": 468,
+						"y": 102,
+						"width": 108,
+						"height": 18,
+						"padding": {
+							"left": 4
+						}
+					},
+					"dataBinding": {
+						"path": "$.spouse.ssn",
+						"transform": "ssn_format"
+					},
+					"formatting": {
+						"letterSpacing": 3,
+						"showSeparators": true,
+						"horizontalAlign": "center"
+					},
+					"conditionalLogic": {
+						"conditions": [
+							{
+								"source": "$.filingStatus",
+								"operator": "in",
+								"value": ["married_filing_jointly", "married_filing_separately"]
+							}
+						],
+						"operator": "and",
+						"action": "require"
+					},
+					"groupId": "taxpayer_info"
+				},
+
+				{
+					"id": "home_address",
+					"label": "Home address (number and street)",
+					"dataType": "string",
+					"positioning": {
+						"x": 36,
+						"y": 132,
+						"width": 360,
+						"height": 18,
+						"padding": {
+							"left": 4,
+							"right": 4
+						}
+					},
+					"dataBinding": {
+						"path": "$.address.street"
+					},
+					"formatting": {
+						"textTransform": "uppercase",
+						"overflow": "truncate"
+					},
+					"validations": [
+						{
+							"type": "required",
+							"message": "Home address is required",
+							"severity": "error"
+						}
+					],
+					"groupId": "address",
+					"required": true
+				},
+
+				{
+					"id": "apt_no",
+					"label": "Apt. no.",
+					"dataType": "string",
+					"positioning": {
+						"x": 408,
+						"y": 132,
+						"width": 48,
+						"height": 18,
+						"padding": {
+							"left": 4
+						}
+					},
+					"dataBinding": {
+						"path": "$.address.apartment"
+					},
+					"formatting": {
+						"textTransform": "uppercase"
+					},
+					"groupId": "address"
+				},
+
+				{
+					"id": "presidential_campaign_you",
+					"label": "Presidential Election Campaign - You",
+					"dataType": "checkbox",
+					"positioning": {
+						"x": 558,
+						"y": 132,
+						"width": 10,
+						"height": 10
+					},
+					"dataBinding": {
+						"path": "$.presidentialCampaign.taxpayer",
+						"checkedValue": true
+					},
+					"helpText": "Check here if you want $3 to go to this fund. This will not change your tax or refund."
+				},
+
+				{
+					"id": "presidential_campaign_spouse",
+					"label": "Presidential Election Campaign - Spouse",
+					"dataType": "checkbox",
+					"positioning": {
+						"x": 576,
+						"y": 132,
+						"width": 10,
+						"height": 10
+					},
+					"dataBinding": {
+						"path": "$.presidentialCampaign.spouse",
+						"checkedValue": true
+					},
+					"conditionalLogic": {
+						"conditions": [
+							{
+								"source": "$.filingStatus",
+								"operator": "eq",
+								"value": "married_filing_jointly"
+							}
+						],
+						"operator": "and",
+						"action": "show"
+					}
+				},
+
+				{
+					"id": "city",
+					"label": "City, town, or post office",
+					"dataType": "string",
+					"positioning": {
+						"x": 36,
+						"y": 150,
+						"width": 252,
+						"height": 18,
+						"padding": {
+							"left": 4,
+							"right": 4
+						}
+					},
+					"dataBinding": {
+						"path": "$.address.city"
+					},
+					"formatting": {
+						"textTransform": "uppercase"
+					},
+					"validations": [
+						{
+							"type": "required",
+							"message": "City is required",
+							"severity": "error"
+						}
+					],
+					"groupId": "address",
+					"required": true
+				},
+
+				{
+					"id": "state",
+					"label": "State",
+					"dataType": "string",
+					"positioning": {
+						"x": 300,
+						"y": 150,
+						"width": 36,
+						"height": 18,
+						"padding": {
+							"left": 4
+						}
+					},
+					"dataBinding": {
+						"path": "$.address.state"
+					},
+					"formatting": {
+						"textTransform": "uppercase"
+					},
+					"validations": [
+						{
+							"type": "required",
+							"message": "State is required",
+							"severity": "error"
+						},
+						{
+							"type": "max_length",
+							"message": "Use 2-letter state abbreviation",
+							"length": 2
+						},
+						{
+							"type": "pattern",
+							"message": "Invalid state code",
+							"pattern": "^(AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY|DC|PR|VI|GU|AS|MP)$"
+						}
+					],
+					"groupId": "address",
+					"required": true
+				},
+
+				{
+					"id": "zip_code",
+					"label": "ZIP code",
+					"dataType": "string",
+					"positioning": {
+						"x": 348,
+						"y": 150,
+						"width": 72,
+						"height": 18,
+						"padding": {
+							"left": 4
+						}
+					},
+					"dataBinding": {
+						"path": "$.address.zipCode"
+					},
+					"validations": [
+						{
+							"type": "required",
+							"message": "ZIP code is required",
+							"severity": "error"
+						},
+						{
+							"type": "pattern",
+							"message": "ZIP code must be 5 or 9 digits",
+							"pattern": "^\\d{5}(-\\d{4})?$"
+						}
+					],
+					"groupId": "address",
+					"required": true
+				},
+
+				{
+					"id": "filing_status_single",
+					"label": "Single",
+					"dataType": "checkbox",
+					"positioning": {
+						"x": 126,
+						"y": 198,
+						"width": 10,
+						"height": 10
+					},
+					"dataBinding": {
+						"path": "$.filingStatus",
+						"checkedValue": "single"
+					},
+					"groupId": "filing_status"
+				},
+
+				{
+					"id": "filing_status_mfj",
+					"label": "Married filing jointly",
+					"dataType": "checkbox",
+					"positioning": {
+						"x": 126,
+						"y": 210,
+						"width": 10,
+						"height": 10
+					},
+					"dataBinding": {
+						"path": "$.filingStatus",
+						"checkedValue": "married_filing_jointly"
+					},
+					"groupId": "filing_status"
+				},
+
+				{
+					"id": "filing_status_mfs",
+					"label": "Married filing separately",
+					"dataType": "checkbox",
+					"positioning": {
+						"x": 126,
+						"y": 222,
+						"width": 10,
+						"height": 10
+					},
+					"dataBinding": {
+						"path": "$.filingStatus",
+						"checkedValue": "married_filing_separately"
+					},
+					"groupId": "filing_status"
+				},
+
+				{
+					"id": "filing_status_hoh",
+					"label": "Head of household",
+					"dataType": "checkbox",
+					"positioning": {
+						"x": 324,
+						"y": 198,
+						"width": 10,
+						"height": 10
+					},
+					"dataBinding": {
+						"path": "$.filingStatus",
+						"checkedValue": "head_of_household"
+					},
+					"groupId": "filing_status"
+				},
+
+				{
+					"id": "filing_status_qss",
+					"label": "Qualifying surviving spouse",
+					"dataType": "checkbox",
+					"positioning": {
+						"x": 324,
+						"y": 210,
+						"width": 10,
+						"height": 10
+					},
+					"dataBinding": {
+						"path": "$.filingStatus",
+						"checkedValue": "qualifying_surviving_spouse"
+					},
+					"groupId": "filing_status"
+				},
+
+				{
+					"id": "digital_assets_yes",
+					"label": "Digital Assets - Yes",
+					"dataType": "checkbox",
+					"positioning": {
+						"x": 546,
+						"y": 270,
+						"width": 10,
+						"height": 10
+					},
+					"dataBinding": {
+						"path": "$.digitalAssets.received",
+						"checkedValue": true
+					}
+				},
+
+				{
+					"id": "digital_assets_no",
+					"label": "Digital Assets - No",
+					"dataType": "checkbox",
+					"positioning": {
+						"x": 576,
+						"y": 270,
+						"width": 10,
+						"height": 10
+					},
+					"dataBinding": {
+						"path": "$.digitalAssets.received",
+						"checkedValue": false
+					}
+				},
+
+				{
+					"id": "dependent_1_first_name",
+					"label": "Dependent 1 - First name",
+					"dataType": "string",
+					"positioning": {
+						"x": 126,
+						"y": 318,
+						"width": 90,
+						"height": 12,
+						"padding": {
+							"left": 2
+						}
+					},
+					"dataBinding": {
+						"path": "$.dependents[0].firstName"
+					},
+					"formatting": {
+						"fontSize": 8,
+						"textTransform": "uppercase",
+						"overflow": "truncate"
+					},
+					"groupId": "dependents"
+				},
+
+				{
+					"id": "dependent_1_last_name",
+					"label": "Dependent 1 - Last name",
+					"dataType": "string",
+					"positioning": {
+						"x": 126,
+						"y": 330,
+						"width": 90,
+						"height": 12,
+						"padding": {
+							"left": 2
+						}
+					},
+					"dataBinding": {
+						"path": "$.dependents[0].lastName"
+					},
+					"formatting": {
+						"fontSize": 8,
+						"textTransform": "uppercase"
+					},
+					"groupId": "dependents"
+				},
+
+				{
+					"id": "dependent_1_ssn",
+					"label": "Dependent 1 - SSN",
+					"dataType": "ssn",
+					"positioning": {
+						"x": 126,
+						"y": 342,
+						"width": 90,
+						"height": 12,
+						"padding": {
+							"left": 2
+						}
+					},
+					"dataBinding": {
+						"path": "$.dependents[0].ssn"
+					},
+					"formatting": {
+						"fontSize": 8,
+						"showSeparators": true
+					},
+					"groupId": "dependents"
+				},
+
+				{
+					"id": "dependent_1_relationship",
+					"label": "Dependent 1 - Relationship",
+					"dataType": "string",
+					"positioning": {
+						"x": 126,
+						"y": 354,
+						"width": 90,
+						"height": 12,
+						"padding": {
+							"left": 2
+						}
+					},
+					"dataBinding": {
+						"path": "$.dependents[0].relationship"
+					},
+					"formatting": {
+						"fontSize": 8,
+						"textTransform": "capitalize"
+					},
+					"groupId": "dependents"
+				},
+
+				{
+					"id": "dependent_1_child_tax_credit",
+					"label": "Dependent 1 - Child tax credit",
+					"dataType": "checkbox",
+					"positioning": {
+						"x": 138,
+						"y": 390,
+						"width": 8,
+						"height": 8
+					},
+					"dataBinding": {
+						"path": "$.dependents[0].credits.childTaxCredit",
+						"checkedValue": true
+					},
+					"groupId": "dependents"
+				},
+
+				{
+					"id": "dependent_1_other_credit",
+					"label": "Dependent 1 - Credit for other dependents",
+					"dataType": "checkbox",
+					"positioning": {
+						"x": 174,
+						"y": 390,
+						"width": 8,
+						"height": 8
+					},
+					"dataBinding": {
+						"path": "$.dependents[0].credits.otherDependentCredit",
+						"checkedValue": true
+					},
+					"groupId": "dependents"
+				},
+
+				{
+					"id": "line_1a_w2_wages",
+					"label": "Total amount from Form(s) W-2, box 1",
+					"lineNumber": "1a",
+					"dataType": "currency",
+					"positioning": {
+						"x": 522,
+						"y": 438,
+						"width": 54,
+						"height": 12,
+						"padding": {
+							"right": 4
+						}
+					},
+					"dataBinding": {
+						"path": "$.income.w2Wages",
+						"expression": {
+							"type": "sum",
+							"operands": ["$.w2Forms[*].wages"]
+						},
+						"fallback": 0
+					},
+					"formatting": {
+						"horizontalAlign": "right",
+						"currencyFormat": "USD_NO_SYMBOL",
+						"thousandsSeparator": true,
+						"decimalPlaces": 0
+					},
+					"groupId": "income"
+				},
+
+				{
+					"id": "line_1b_household_wages",
+					"label": "Household employee wages not reported on Form(s) W-2",
+					"lineNumber": "1b",
+					"dataType": "currency",
+					"positioning": {
+						"x": 522,
+						"y": 450,
+						"width": 54,
+						"height": 12,
+						"padding": {
+							"right": 4
+						}
+					},
+					"dataBinding": {
+						"path": "$.income.householdWages",
+						"fallback": 0
+					},
+					"formatting": {
+						"horizontalAlign": "right",
+						"currencyFormat": "USD_NO_SYMBOL",
+						"thousandsSeparator": true,
+						"decimalPlaces": 0
+					},
+					"groupId": "income"
+				},
+
+				{
+					"id": "line_1z_total_1a_1h",
+					"label": "Add lines 1a through 1h",
+					"lineNumber": "1z",
+					"dataType": "currency",
+					"positioning": {
+						"x": 522,
+						"y": 546,
+						"width": 54,
+						"height": 12,
+						"padding": {
+							"right": 4
+						}
+					},
+					"dataBinding": {
+						"path": "$.income.totalLine1",
+						"expression": {
+							"type": "sum",
+							"operands": [
+								"line_1a_w2_wages",
+								"line_1b_household_wages",
+								"line_1c_tip_income",
+								"line_1d_medicaid_waiver",
+								"line_1e_dependent_care",
+								"line_1f_adoption_benefits",
+								"line_1g_form_8919_wages",
+								"line_1h_other_earned"
+							]
+						}
+					},
+					"formatting": {
+						"horizontalAlign": "right",
+						"currencyFormat": "USD_NO_SYMBOL",
+						"thousandsSeparator": true,
+						"decimalPlaces": 0,
+						"fontWeight": 700
+					},
+					"stylePreset": "lineTotal",
+					"readOnly": true,
+					"groupId": "income"
+				},
+
+				{
+					"id": "line_2a_tax_exempt_interest",
+					"label": "Tax-exempt interest",
+					"lineNumber": "2a",
+					"dataType": "currency",
+					"positioning": {
+						"x": 288,
+						"y": 558,
+						"width": 54,
+						"height": 12,
+						"padding": {
+							"right": 4
+						}
+					},
+					"dataBinding": {
+						"path": "$.income.taxExemptInterest",
+						"fallback": 0
+					},
+					"formatting": {
+						"horizontalAlign": "right",
+						"currencyFormat": "USD_NO_SYMBOL",
+						"thousandsSeparator": true,
+						"decimalPlaces": 0
+					},
+					"groupId": "income"
+				},
+
+				{
+					"id": "line_2b_taxable_interest",
+					"label": "Taxable interest",
+					"lineNumber": "2b",
+					"dataType": "currency",
+					"positioning": {
+						"x": 522,
+						"y": 558,
+						"width": 54,
+						"height": 12,
+						"padding": {
+							"right": 4
+						}
+					},
+					"dataBinding": {
+						"path": "$.income.taxableInterest",
+						"fallback": 0
+					},
+					"formatting": {
+						"horizontalAlign": "right",
+						"currencyFormat": "USD_NO_SYMBOL",
+						"thousandsSeparator": true,
+						"decimalPlaces": 0
+					},
+					"groupId": "income"
+				},
+
+				{
+					"id": "line_9_total_income",
+					"label": "Total income",
+					"lineNumber": "9",
+					"dataType": "currency",
+					"positioning": {
+						"x": 522,
+						"y": 678,
+						"width": 54,
+						"height": 12,
+						"padding": {
+							"right": 4
+						}
+					},
+					"dataBinding": {
+						"path": "$.income.totalIncome",
+						"expression": {
+							"type": "formula",
+							"formula": "{line_1z} + {line_2b} + {line_3b} + {line_4b} + {line_5b} + {line_6b} + {line_7a} + {line_8}"
+						}
+					},
+					"formatting": {
+						"horizontalAlign": "right",
+						"currencyFormat": "USD_NO_SYMBOL",
+						"thousandsSeparator": true,
+						"decimalPlaces": 0,
+						"fontWeight": 700
+					},
+					"stylePreset": "lineTotal",
+					"readOnly": true,
+					"groupId": "income"
+				},
+
+				{
+					"id": "line_10_adjustments",
+					"label": "Adjustments to income from Schedule 1, line 26",
+					"lineNumber": "10",
+					"dataType": "currency",
+					"positioning": {
+						"x": 522,
+						"y": 690,
+						"width": 54,
+						"height": 12,
+						"padding": {
+							"right": 4
+						}
+					},
+					"dataBinding": {
+						"path": "$.adjustments.total",
+						"fallback": 0
+					},
+					"formatting": {
+						"horizontalAlign": "right",
+						"currencyFormat": "USD_NO_SYMBOL",
+						"thousandsSeparator": true,
+						"decimalPlaces": 0
+					},
+					"groupId": "income"
+				},
+
+				{
+					"id": "line_11a_adjusted_gross_income",
+					"label": "Adjusted gross income",
+					"lineNumber": "11a",
+					"dataType": "currency",
+					"positioning": {
+						"x": 522,
+						"y": 702,
+						"width": 54,
+						"height": 12,
+						"padding": {
+							"right": 4
+						}
+					},
+					"dataBinding": {
+						"path": "$.income.adjustedGrossIncome",
+						"expression": {
+							"type": "subtract",
+							"operands": ["line_9_total_income", "line_10_adjustments"]
+						}
+					},
+					"formatting": {
+						"horizontalAlign": "right",
+						"currencyFormat": "USD_NO_SYMBOL",
+						"thousandsSeparator": true,
+						"decimalPlaces": 0,
+						"fontWeight": 700,
+						"backgroundColor": "#e6e6e6"
+					},
+					"stylePreset": "lineTotal",
+					"readOnly": true,
+					"groupId": "income",
+					"meta": {
+						"irsReference": "This is your adjusted gross income",
+						"notes": "Critical field - used in many calculations throughout the return"
+					}
+				}
+			]
+		},
+
+		{
+			"pageNumber": 2,
+			"pageId": "form-1040-page-2",
+			"dimensions": {
+				"width": 612,
+				"height": 792,
+				"paperSize": "letter"
+			},
+			"orientation": "portrait",
+			"backgroundSource": "assets/forms/1040-2025-page2.pdf",
+			"margins": {
+				"top": 36,
+				"right": 36,
+				"bottom": 36,
+				"left": 36
+			},
+			"fields": [
+				{
+					"id": "line_11b_agi_page2",
+					"label": "Amount from line 11a (adjusted gross income)",
+					"lineNumber": "11b",
+					"dataType": "currency",
+					"positioning": {
+						"x": 522,
+						"y": 36,
+						"width": 54,
+						"height": 12,
+						"padding": {
+							"right": 4
+						}
+					},
+					"dataBinding": {
+						"path": "$.income.adjustedGrossIncome"
+					},
+					"formatting": {
+						"horizontalAlign": "right",
+						"currencyFormat": "USD_NO_SYMBOL",
+						"thousandsSeparator": true,
+						"decimalPlaces": 0
+					},
+					"readOnly": true
+				},
+
+				{
+					"id": "line_12e_standard_deduction",
+					"label": "Standard deduction or itemized deductions",
+					"lineNumber": "12e",
+					"dataType": "currency",
+					"positioning": {
+						"x": 522,
+						"y": 84,
+						"width": 54,
+						"height": 12,
+						"padding": {
+							"right": 4
+						}
+					},
+					"dataBinding": {
+						"path": "$.deductions.total"
+					},
+					"formatting": {
+						"horizontalAlign": "right",
+						"currencyFormat": "USD_NO_SYMBOL",
+						"thousandsSeparator": true,
+						"decimalPlaces": 0
+					}
+				},
+
+				{
+					"id": "line_15_taxable_income",
+					"label": "Taxable income",
+					"lineNumber": "15",
+					"dataType": "currency",
+					"positioning": {
+						"x": 522,
+						"y": 132,
+						"width": 54,
+						"height": 12,
+						"padding": {
+							"right": 4
+						}
+					},
+					"dataBinding": {
+						"path": "$.taxableIncome",
+						"expression": {
+							"type": "formula",
+							"formula": "max(0, {line_11b} - {line_12e} - {line_14})"
+						}
+					},
+					"formatting": {
+						"horizontalAlign": "right",
+						"currencyFormat": "USD_NO_SYMBOL",
+						"thousandsSeparator": true,
+						"decimalPlaces": 0,
+						"fontWeight": 700,
+						"backgroundColor": "#e6e6e6"
+					},
+					"stylePreset": "lineTotal",
+					"readOnly": true,
+					"meta": {
+						"irsReference": "This is your taxable income",
+						"notes": "If zero or less, enter -0-"
+					}
+				},
+
+				{
+					"id": "line_24_total_tax",
+					"label": "Total tax",
+					"lineNumber": "24",
+					"dataType": "currency",
+					"positioning": {
+						"x": 522,
+						"y": 276,
+						"width": 54,
+						"height": 12,
+						"padding": {
+							"right": 4
+						}
+					},
+					"dataBinding": {
+						"path": "$.tax.totalTax"
+					},
+					"formatting": {
+						"horizontalAlign": "right",
+						"currencyFormat": "USD_NO_SYMBOL",
+						"thousandsSeparator": true,
+						"decimalPlaces": 0,
+						"fontWeight": 700
+					},
+					"stylePreset": "lineTotal",
+					"readOnly": true
+				},
+
+				{
+					"id": "line_33_total_payments",
+					"label": "Total payments",
+					"lineNumber": "33",
+					"dataType": "currency",
+					"positioning": {
+						"x": 522,
+						"y": 432,
+						"width": 54,
+						"height": 12,
+						"padding": {
+							"right": 4
+						}
+					},
+					"dataBinding": {
+						"path": "$.payments.total"
+					},
+					"formatting": {
+						"horizontalAlign": "right",
+						"currencyFormat": "USD_NO_SYMBOL",
+						"thousandsSeparator": true,
+						"decimalPlaces": 0,
+						"fontWeight": 700
+					},
+					"stylePreset": "lineTotal",
+					"readOnly": true
+				},
+
+				{
+					"id": "line_34_refund_amount",
+					"label": "Amount you overpaid",
+					"lineNumber": "34",
+					"dataType": "currency",
+					"positioning": {
+						"x": 522,
+						"y": 456,
+						"width": 54,
+						"height": 12,
+						"padding": {
+							"right": 4
+						}
+					},
+					"dataBinding": {
+						"path": "$.refund.overpaid",
+						"expression": {
+							"type": "formula",
+							"formula": "max(0, {line_33} - {line_24})"
+						}
+					},
+					"formatting": {
+						"horizontalAlign": "right",
+						"currencyFormat": "USD_NO_SYMBOL",
+						"thousandsSeparator": true,
+						"decimalPlaces": 0
+					},
+					"conditionalLogic": {
+						"conditions": [
+							{
+								"source": "line_33_total_payments",
+								"operator": "gt",
+								"value": "line_24_total_tax"
+							}
+						],
+						"operator": "and",
+						"action": "show"
+					},
+					"readOnly": true
+				},
+
+				{
+					"id": "line_35a_refund_to_you",
+					"label": "Amount you want refunded to you",
+					"lineNumber": "35a",
+					"dataType": "currency",
+					"positioning": {
+						"x": 522,
+						"y": 468,
+						"width": 54,
+						"height": 12,
+						"padding": {
+							"right": 4
+						}
+					},
+					"dataBinding": {
+						"path": "$.refund.amount"
+					},
+					"formatting": {
+						"horizontalAlign": "right",
+						"currencyFormat": "USD_NO_SYMBOL",
+						"thousandsSeparator": true,
+						"decimalPlaces": 0,
+						"fontWeight": 700,
+						"backgroundColor": "#cce5cc"
+					}
+				},
+
+				{
+					"id": "line_35b_routing_number",
+					"label": "Routing number",
+					"lineNumber": "35b",
+					"dataType": "string",
+					"positioning": {
+						"x": 162,
+						"y": 480,
+						"width": 108,
+						"height": 12,
+						"padding": {
+							"left": 2,
+							"right": 2
+						}
+					},
+					"dataBinding": {
+						"path": "$.refund.directDeposit.routingNumber"
+					},
+					"formatting": {
+						"fontFamily": "Courier",
+						"letterSpacing": 2
+					},
+					"validations": [
+						{
+							"type": "pattern",
+							"message": "Routing number must be 9 digits",
+							"pattern": "^\\d{9}$"
+						}
+					],
+					"conditionalLogic": {
+						"conditions": [
+							{
+								"source": "$.refund.directDeposit.enabled",
+								"operator": "eq",
+								"value": true
+							}
+						],
+						"operator": "and",
+						"action": "require"
+					}
+				},
+
+				{
+					"id": "line_35c_account_type_checking",
+					"label": "Checking",
+					"lineNumber": "35c",
+					"dataType": "checkbox",
+					"positioning": {
+						"x": 360,
+						"y": 480,
+						"width": 10,
+						"height": 10
+					},
+					"dataBinding": {
+						"path": "$.refund.directDeposit.accountType",
+						"checkedValue": "checking"
+					}
+				},
+
+				{
+					"id": "line_35c_account_type_savings",
+					"label": "Savings",
+					"lineNumber": "35c",
+					"dataType": "checkbox",
+					"positioning": {
+						"x": 420,
+						"y": 480,
+						"width": 10,
+						"height": 10
+					},
+					"dataBinding": {
+						"path": "$.refund.directDeposit.accountType",
+						"checkedValue": "savings"
+					}
+				},
+
+				{
+					"id": "line_35d_account_number",
+					"label": "Account number",
+					"lineNumber": "35d",
+					"dataType": "string",
+					"positioning": {
+						"x": 162,
+						"y": 492,
+						"width": 162,
+						"height": 12,
+						"padding": {
+							"left": 2,
+							"right": 2
+						}
+					},
+					"dataBinding": {
+						"path": "$.refund.directDeposit.accountNumber"
+					},
+					"formatting": {
+						"fontFamily": "Courier",
+						"letterSpacing": 1,
+						"maskValue": true
+					},
+					"validations": [
+						{
+							"type": "max_length",
+							"message": "Account number cannot exceed 17 characters",
+							"length": 17
+						}
+					]
+				},
+
+				{
+					"id": "line_37_amount_you_owe",
+					"label": "Amount you owe",
+					"lineNumber": "37",
+					"dataType": "currency",
+					"positioning": {
+						"x": 522,
+						"y": 528,
+						"width": 54,
+						"height": 12,
+						"padding": {
+							"right": 4
+						}
+					},
+					"dataBinding": {
+						"path": "$.amountOwed",
+						"expression": {
+							"type": "formula",
+							"formula": "max(0, {line_24} - {line_33})"
+						}
+					},
+					"formatting": {
+						"horizontalAlign": "right",
+						"currencyFormat": "USD_NO_SYMBOL",
+						"thousandsSeparator": true,
+						"decimalPlaces": 0,
+						"fontWeight": 700,
+						"backgroundColor": "#ffcccc"
+					},
+					"conditionalLogic": {
+						"conditions": [
+							{
+								"source": "line_24_total_tax",
+								"operator": "gt",
+								"value": "line_33_total_payments"
+							}
+						],
+						"operator": "and",
+						"action": "show"
+					},
+					"readOnly": true
+				},
+
+				{
+					"id": "third_party_designee_yes",
+					"label": "Third Party Designee - Yes",
+					"dataType": "checkbox",
+					"positioning": {
+						"x": 474,
+						"y": 564,
+						"width": 10,
+						"height": 10
+					},
+					"dataBinding": {
+						"path": "$.thirdPartyDesignee.authorized",
+						"checkedValue": true
+					}
+				},
+
+				{
+					"id": "third_party_designee_no",
+					"label": "Third Party Designee - No",
+					"dataType": "checkbox",
+					"positioning": {
+						"x": 546,
+						"y": 564,
+						"width": 10,
+						"height": 10
+					},
+					"dataBinding": {
+						"path": "$.thirdPartyDesignee.authorized",
+						"checkedValue": false
+					}
+				},
+
+				{
+					"id": "designee_name",
+					"label": "Designee's name",
+					"dataType": "string",
+					"positioning": {
+						"x": 126,
+						"y": 576,
+						"width": 144,
+						"height": 12,
+						"padding": {
+							"left": 2
+						}
+					},
+					"dataBinding": {
+						"path": "$.thirdPartyDesignee.name"
+					},
+					"formatting": {
+						"textTransform": "uppercase",
+						"fontSize": 9
+					},
+					"conditionalLogic": {
+						"conditions": [
+							{
+								"source": "$.thirdPartyDesignee.authorized",
+								"operator": "eq",
+								"value": true
+							}
+						],
+						"operator": "and",
+						"action": "require"
+					}
+				},
+
+				{
+					"id": "designee_phone",
+					"label": "Phone no.",
+					"dataType": "phone",
+					"positioning": {
+						"x": 288,
+						"y": 576,
+						"width": 90,
+						"height": 12,
+						"padding": {
+							"left": 2
+						}
+					},
+					"dataBinding": {
+						"path": "$.thirdPartyDesignee.phone"
+					},
+					"formatting": {
+						"fontSize": 9
+					},
+					"conditionalLogic": {
+						"conditions": [
+							{
+								"source": "$.thirdPartyDesignee.authorized",
+								"operator": "eq",
+								"value": true
+							}
+						],
+						"operator": "and",
+						"action": "show"
+					}
+				},
+
+				{
+					"id": "designee_pin",
+					"label": "Personal identification number (PIN)",
+					"dataType": "string",
+					"positioning": {
+						"x": 486,
+						"y": 576,
+						"width": 54,
+						"height": 12,
+						"padding": {
+							"left": 2
+						}
+					},
+					"dataBinding": {
+						"path": "$.thirdPartyDesignee.pin"
+					},
+					"formatting": {
+						"fontSize": 9,
+						"fontFamily": "Courier",
+						"letterSpacing": 2
+					},
+					"validations": [
+						{
+							"type": "pattern",
+							"message": "PIN must be 5 digits",
+							"pattern": "^\\d{5}$"
+						}
+					],
+					"conditionalLogic": {
+						"conditions": [
+							{
+								"source": "$.thirdPartyDesignee.authorized",
+								"operator": "eq",
+								"value": true
+							}
+						],
+						"operator": "and",
+						"action": "require"
+					}
+				},
+
+				{
+					"id": "signature_date",
+					"label": "Date",
+					"dataType": "date",
+					"positioning": {
+						"x": 342,
+						"y": 636,
+						"width": 72,
+						"height": 12,
+						"padding": {
+							"left": 2
+						}
+					},
+					"dataBinding": {
+						"path": "$.signature.date"
+					},
+					"formatting": {
+						"dateFormat": "MM_DD_YYYY"
+					},
+					"validations": [
+						{
+							"type": "required",
+							"message": "Signature date is required",
+							"severity": "error"
+						}
+					],
+					"required": true
+				},
+
+				{
+					"id": "taxpayer_occupation",
+					"label": "Your occupation",
+					"dataType": "string",
+					"positioning": {
+						"x": 432,
+						"y": 636,
+						"width": 108,
+						"height": 12,
+						"padding": {
+							"left": 2
+						}
+					},
+					"dataBinding": {
+						"path": "$.taxpayer.occupation"
+					},
+					"formatting": {
+						"textTransform": "capitalize",
+						"overflow": "truncate"
+					},
+					"validations": [
+						{
+							"type": "required",
+							"message": "Occupation is required",
+							"severity": "error"
+						}
+					],
+					"required": true
+				},
+
+				{
+					"id": "taxpayer_identity_protection_pin",
+					"label": "Identity Protection PIN",
+					"dataType": "string",
+					"positioning": {
+						"x": 558,
+						"y": 636,
+						"width": 36,
+						"height": 12,
+						"padding": {
+							"left": 2
+						}
+					},
+					"dataBinding": {
+						"path": "$.taxpayer.identityProtectionPIN"
+					},
+					"formatting": {
+						"fontFamily": "Courier",
+						"letterSpacing": 1
+					},
+					"validations": [
+						{
+							"type": "pattern",
+							"message": "IP PIN must be 6 digits",
+							"pattern": "^\\d{6}$"
+						}
+					],
+					"helpText": "If the IRS sent you an Identity Protection PIN, enter it here"
+				}
+			]
+		}
+	]
+}

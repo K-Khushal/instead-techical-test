@@ -19,7 +19,7 @@
 		"irs",
 		"1040"
 	],
-	"author": "Instead Product Team",
+	"author": "Instead Engineer",
 	"license": "MIT",
 	"devDependencies": {
 		"@types/node": "^20.10.0",

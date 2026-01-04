@@ -212,7 +212,7 @@ const exampleBlueprint: FormBlueprint = {
 		status: FormStatus.DRAFT,
 		createdAt: new Date().toISOString(),
 		updatedAt: new Date().toISOString(),
-		author: "Development Team",
+		author: "Instead Engineer",
 		notes: "This is an example blueprint for demonstration purposes",
 		tags: ["example", "demo"],
 	},

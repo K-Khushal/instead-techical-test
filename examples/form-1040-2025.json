@@ -15,7 +15,7 @@
 		"status": "published",
 		"createdAt": "2025-10-01T00:00:00Z",
 		"updatedAt": "2026-01-03T00:00:00Z",
-		"author": "Instead Product Team",
+		"author": "Instead Engineer",
 		"notes": "Form 1040 for tax year 2025. Includes all standard fields for individual income tax returns.",
 		"tags": ["individual", "income-tax", "1040", "2025"],
 		"relatedForms": [

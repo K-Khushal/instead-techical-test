@@ -3,7 +3,7 @@
 ## Problem Analysis & Design Document
 
 **Version:** 1.0.0  
-**Author:** Khushal Khandelwal
+**Author:** Khushal Khandelwal  
 **Date:** January 3, 2026
 
 ---
